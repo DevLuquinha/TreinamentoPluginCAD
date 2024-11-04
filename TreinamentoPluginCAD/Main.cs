@@ -33,5 +33,22 @@ namespace TreinamentoPluginCAD
                 docEditor.WriteMessage($"O valor X:{pointClicked.Value.X.ToString()} | O Valor de Y: {pointClicked.Value.Y}");
             }
         }
+
+        [CommandMethod("PEGARNUMERO")]
+        public void PegarNumero()
+        {
+            // Recebe as principais variaveis da autodesk
+            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database docData = docCAD.Database;
+            Editor docEditor = docCAD.Editor;
+
+            PromptDoubleResult numberInput = docEditor.GetDouble("Especifique o comprimento: ");
+            if (numberInput.Status == PromptStatus.OK)
+            {
+                MessageBox.Show($"O valor digitado é: {numberInput}", "O valor foi digitado :)", MessageBoxButtons.OK);
+            }
+        }
+
+        
     }
 }
