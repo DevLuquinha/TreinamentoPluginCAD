@@ -45,7 +45,7 @@ namespace TreinamentoPluginCAD
             PromptDoubleResult numberInput = docEditor.GetDouble("Especifique o comprimento: ");
             if (numberInput.Status == PromptStatus.OK)
             {
-                MessageBox.Show($"O valor digitado é: {numberInput}", "O valor foi digitado :)", MessageBoxButtons.OK);
+                MessageBox.Show($"O valor digitado é: {numberInput.Value}", "O valor foi digitado :)", MessageBoxButtons.OK);
             }
         }
 
@@ -62,7 +62,21 @@ namespace TreinamentoPluginCAD
             {
                 MessageBox.Show($"O texto digitado foi: {txtInput.StringResult}");
             }
-           
+        }
+
+        [CommandMethod("PEGARINTEIRO")]
+        public void PegarInteiro()
+        {
+            // Recebe as principais variaveis da autodesk
+            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database docData = docCAD.Database;
+            Editor docEditor = docCAD.Editor;
+
+            PromptIntegerResult numInput = docEditor.GetInteger("Especifique o número inteiro");
+            if(numInput.Status == PromptStatus.OK)
+            {
+                MessageBox.Show($"O número digitado foi: {numInput.Value}");
+            }
         }
     }
 }
