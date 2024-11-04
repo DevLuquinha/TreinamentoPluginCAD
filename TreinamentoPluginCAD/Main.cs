@@ -23,8 +23,10 @@ namespace TreinamentoPluginCAD
             Database docData = docCAD.Database;
             Editor docEditor = docCAD.Editor;
 
+            PromptPointOptions optionPoint = new PromptPointOptions("\nEspecifique o ponto no desenho");
+
             // Solicita a selecão de um ponto no desenho
-            PromptPointResult pointClicked = docEditor.GetPoint("Selecione um ponto");
+            PromptPointResult pointClicked = docEditor.GetPoint(optionPoint);
 
             // Verifica se deu certo
             if (pointClicked.Status == PromptStatus.OK)
@@ -42,7 +44,10 @@ namespace TreinamentoPluginCAD
             Database docData = docCAD.Database;
             Editor docEditor = docCAD.Editor;
 
-            PromptDoubleResult numberInput = docEditor.GetDouble("Especifique o comprimento: ");
+            PromptDoubleOptions optionDouble = new PromptDoubleOptions("\nDigite um número");
+            optionDouble.DefaultValue = 6;
+
+            PromptDoubleResult numberInput = docEditor.GetDouble(optionDouble);
             if (numberInput.Status == PromptStatus.OK)
             {
                 MessageBox.Show($"O valor digitado é: {numberInput.Value}", "O valor foi digitado :)", MessageBoxButtons.OK);
@@ -57,7 +62,10 @@ namespace TreinamentoPluginCAD
             Database docData = docCAD.Database;
             Editor docEditor = docCAD.Editor;
 
-            PromptResult txtInput = docEditor.GetString("Digite uma palavra");
+            PromptStringOptions optionString = new PromptStringOptions("\nDigite uma palavra");
+            optionString.AllowSpaces = true;
+
+            PromptResult txtInput = docEditor.GetString(optionString);
             if (txtInput.Status == PromptStatus.OK)
             {
                 MessageBox.Show($"O texto digitado foi: {txtInput.StringResult}");
@@ -72,7 +80,10 @@ namespace TreinamentoPluginCAD
             Database docData = docCAD.Database;
             Editor docEditor = docCAD.Editor;
 
-            PromptIntegerResult numInput = docEditor.GetInteger("Especifique o número inteiro");
+            PromptIntegerOptions optionInteger = new PromptIntegerOptions("\nEspecifique o número inteiro");
+            optionInteger.DefaultValue = 2;
+
+            PromptIntegerResult numInput = docEditor.GetInteger(optionInteger);
             if(numInput.Status == PromptStatus.OK)
             {
                 MessageBox.Show($"O número digitado foi: {numInput.Value}");
@@ -87,7 +98,11 @@ namespace TreinamentoPluginCAD
             Database docData = docCAD.Database;
             Editor docEditor = docCAD.Editor;
 
-            PromptEntityResult resultSel = docEditor.GetEntity("Selecione o Objeto");
+            PromptEntityOptions optionEntity = new PromptEntityOptions("\nSelecione a polyline");
+            optionEntity.SetRejectMessage("\nSelecione apenas polylines!");
+            optionEntity.AddAllowedClass(typeof(Polyline), true);
+
+            PromptEntityResult resultSel = docEditor.GetEntity(optionEntity);
             if (resultSel.Status == PromptStatus.OK)
             {
                 MessageBox.Show("O Objeto FOI selecionado", "Sucesso :)", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -106,10 +121,13 @@ namespace TreinamentoPluginCAD
             Database docData = docCAD.Database;
             Editor docEditor = docCAD.Editor;
 
-            PromptPointResult pointClicked = docEditor.GetPoint("Especifique o ponto inicial");
+            PromptPointResult pointClicked = docEditor.GetPoint("\nEspecifique o ponto inicial");
             if (pointClicked.Status == PromptStatus.OK)
             {
-                PromptPointResult pointCorner = docEditor.GetCorner("Especifique o segundo ponto", pointClicked.Value);
+                PromptCornerOptions optionCorner = new PromptCornerOptions("Especifique o segundo ponto", pointClicked.Value);
+                optionCorner.UseDashedLine = true;
+
+                PromptPointResult pointCorner = docEditor.GetCorner(optionCorner);
                 if (pointCorner.Status == PromptStatus.OK)
                 {
                     MessageBox.Show($"Primeira Coordenada: {pointClicked.Value.X}, {pointClicked.Value.Y}");
