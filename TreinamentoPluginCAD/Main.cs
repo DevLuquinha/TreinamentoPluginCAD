@@ -78,5 +78,24 @@ namespace TreinamentoPluginCAD
                 MessageBox.Show($"O número digitado foi: {numInput.Value}");
             }
         }
+
+        [CommandMethod("PEGARENTIDADE")]
+        public void PegarEntidade()
+        {
+            // Recebe as principais variaveis da autodesk
+            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database docData = docCAD.Database;
+            Editor docEditor = docCAD.Editor;
+
+            PromptEntityResult resultSel = docEditor.GetEntity("Selecione o Objeto");
+            if (resultSel.Status == PromptStatus.OK)
+            {
+                MessageBox.Show("O Objeto FOI selecionado", "Sucesso :)", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("O Objeto não foi selecionado", "Erro!", MessageBoxButtons.OK ,MessageBoxIcon.Error);
+            }
+        }
     }
 }
