@@ -49,6 +49,20 @@ namespace TreinamentoPluginCAD
             }
         }
 
-        
+        [CommandMethod("PEGARTEXTO")]
+        public void PegarTexto()
+        {
+            // Recebe as principais variaveis da autodesk
+            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database docData = docCAD.Database;
+            Editor docEditor = docCAD.Editor;
+
+            PromptResult txtInput = docEditor.GetString("Digite uma palavra");
+            if (txtInput.Status == PromptStatus.OK)
+            {
+                MessageBox.Show($"O texto digitado foi: {txtInput.StringResult}");
+            }
+           
+        }
     }
 }
