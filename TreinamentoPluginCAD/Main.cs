@@ -97,5 +97,25 @@ namespace TreinamentoPluginCAD
                 MessageBox.Show("O Objeto não foi selecionado", "Erro!", MessageBoxButtons.OK ,MessageBoxIcon.Error);
             }
         }
+
+        [CommandMethod("PEGARCORNER")]
+        public void PegarCorner()
+        {
+            // Recebe as principais variaveis da autodesk
+            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database docData = docCAD.Database;
+            Editor docEditor = docCAD.Editor;
+
+            PromptPointResult pointClicked = docEditor.GetPoint("Especifique o ponto inicial");
+            if (pointClicked.Status == PromptStatus.OK)
+            {
+                PromptPointResult pointCorner = docEditor.GetCorner("Especifique o segundo ponto", pointClicked.Value);
+                if (pointCorner.Status == PromptStatus.OK)
+                {
+                    MessageBox.Show($"Primeira Coordenada: {pointClicked.Value.X}, {pointClicked.Value.Y}");
+                    MessageBox.Show($"Segunda Coordenada: {pointCorner.Value.X}, {pointCorner.Value.Y}");
+                }
+            }
+        }
     }
 }
