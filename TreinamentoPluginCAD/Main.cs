@@ -16,6 +16,7 @@ namespace TreinamentoPluginCAD
 {
     public class Main
     {
+        #region INPUTS DO USUÁRIO
         [CommandMethod("PEGARPONTO")]
         public void PegarPonto()
         {
@@ -175,5 +176,32 @@ namespace TreinamentoPluginCAD
             }
 
         }
+
+        #endregion
+
+        #region CRIAÇÃO DE OBJETOS
+
+        [CommandMethod("CRIAPONTO")]
+        public void CriaPonto()
+        {
+            PromptPointResult pointClicked = Manager.docEditor.GetPoint("\nEspecifique o ponto");
+            if (pointClicked.Status == PromptStatus.OK)
+            {
+                using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+                {
+                    BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
+
+                    DBPoint point = new DBPoint(pointClicked.Value);
+                    point.ColorIndex = 4;
+                    point.Layer = "0";
+
+                    model.AppendEntity(point);
+                    trans.AddNewlyCreatedDBObject(point, true);
+                    trans.Commit();
+                }
+            }
+        }
+
+        #endregion
     }
 }
