@@ -10,6 +10,7 @@ using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Runtime;
 using System.Windows.Forms;
+using Autodesk.AutoCAD.Windows.Data;
 
 namespace TreinamentoPluginCAD
 {
@@ -153,7 +154,26 @@ namespace TreinamentoPluginCAD
 
             if (selObjects.Status == PromptStatus.OK)
             {
-                MessageBox.Show($"A quantidade de objetos selecionados foi: {selObjects.Value.Count.ToString()}");
+                PromptDoubleResult radius = docEditor.GetDouble("\nEspecifique o raio: ");
+
+                if (radius.Status == PromptStatus.OK)
+                {
+                    Autodesk.AutoCAD.Windows.ColorDialog colorWin = new Autodesk.AutoCAD.Windows.ColorDialog();
+
+                    if (colorWin.ShowDialog() == DialogResult.OK)
+                    {
+                        using (Transaction trans = docData.TransactionManager.StartTransaction())
+                        {
+                            for (int i = 0; i < selObjects.Value.Count; i++)
+                            {
+                                Circle circle = (Circle)trans.GetObject(selObjects.Value[i].ObjectId, OpenMode.ForWrite);
+                                circle.Color = colorWin.Color;
+                                circle.Radius = radius.Value;
+                            }
+                            trans.Commit();
+                        }
+                    }
+                }
             }
         }
     }
