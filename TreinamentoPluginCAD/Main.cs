@@ -202,6 +202,34 @@ namespace TreinamentoPluginCAD
             }
         }
 
+        [CommandMethod("CRIALINHA")]
+        public void CriaLinha()
+        {
+            PromptPointResult point1 = Manager.docEditor.GetPoint("\nEspecifique o ponto inicial");
+            if (point1.Status == PromptStatus.OK)
+            {
+                PromptPointOptions optionPoint = new PromptPointOptions("\nEspecifique o ponto final");
+                optionPoint.UseBasePoint = true;
+                optionPoint.BasePoint = point1.Value;
+                optionPoint.UseDashedLine = true;
+
+                PromptPointResult point2 = Manager.docEditor.GetPoint(optionPoint);
+                if (point2.Status == PromptStatus.OK)
+                {
+                    using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+                    {
+                        BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
+                        Line line = new Line(point1.Value, point2.Value);
+                        line.ColorIndex = 10;
+
+                        model.AppendEntity(line);
+                        trans.AddNewlyCreatedDBObject(line, true);
+                        trans.Commit();
+                    }
+                }
+            }
+        }
+
         #endregion
     }
 }
