@@ -264,7 +264,30 @@ namespace TreinamentoPluginCAD
                 }
             }
         }
+        [CommandMethod("CRIACIRCULOS")]
+        public void CriaCirculos()
+        {
+            PromptPointResult pointC = Manager.docEditor.GetPoint("\nEspecifique o centro do círculo");
+            if(pointC.Status == PromptStatus.OK)
+            {
+                PromptDoubleResult radius = Manager.docEditor.GetDouble("\nDiigte o raio");
+                if (radius.Status == PromptStatus.OK)
+                {
+                    using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+                    {
+                        BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
 
+                        Circle circle = new Circle();
+                        circle.Center = pointC.Value;
+                        circle.Radius = radius.Value;
+
+                        model.AppendEntity(circle);
+                        trans.AddNewlyCreatedDBObject(circle, true);
+                        trans.Commit();
+                    }
+                }
+            }
+        }
         #endregion
     }
 }
