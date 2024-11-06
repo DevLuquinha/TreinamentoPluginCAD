@@ -406,6 +406,42 @@ namespace TreinamentoPluginCAD
             }
             
         }
+        [CommandMethod("CRIAMULTITEXTOS")]
+        public void CriaMultiTextos()
+        {
+            PromptPointResult pointClicked = Manager.docEditor.GetPoint("\nEspecifique o local do texto");
+            if (pointClicked.Status != PromptStatus.OK)
+            {
+                return;
+            }
+
+            PromptStringOptions optionString = new PromptStringOptions("\nInforme o texto desejado");
+            optionString.AllowSpaces = true;
+
+            PromptResult textResult = Manager.docEditor.GetString(optionString);
+            if (textResult.Status != PromptStatus.OK)
+            {
+                return;
+            }
+
+            using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+            {
+                BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
+
+                if (!string.IsNullOrEmpty(textResult.StringResult))
+                {
+                    MText text = new MText();
+                    text.Location = pointClicked.Value;
+                    text.Contents = textResult.StringResult;
+                    text.TextHeight = 12;
+
+                    model.AppendEntity(text);
+                    trans.AddNewlyCreatedDBObject(text, true);
+                }
+                trans.Commit();
+            }
+
+        }
         #endregion
     }
 }
