@@ -142,5 +142,38 @@ namespace TreinamentoPluginCAD
                 }
             }
         }
+        [CommandMethod("AREACOMPRIMENTO")]
+        public void AreaComprimento()
+        {
+            TypedValue type = new TypedValue(0, "LWPOLYLINE");
+            SelectionFilter selFilter = new SelectionFilter(new TypedValue[] { type });
+            PromptSelectionOptions optionSelection = new PromptSelectionOptions();
+            optionSelection.MessageForAdding = "\nSelecione as polilinhas";
+            optionSelection.MessageForRemoval = "\nApenas polilinhas";
+
+            PromptSelectionResult selObjects = Manager.docEditor.GetSelection(optionSelection, selFilter);
+            if (selObjects.Status == PromptStatus.OK)
+            {
+                using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+                {
+                    double totalArea = 0;
+                    double totalLength = 0; 
+
+                    for (int i = 0; i < selObjects.Value.Count; i++)
+                    {
+                        Polyline polyL = (Polyline)trans.GetObject(selObjects.Value[i].ObjectId, OpenMode.ForRead);
+                        if (polyL.Closed == true)
+                        {
+                            totalArea += polyL.Area;
+                        }
+                        totalLength += polyL.Length;
+                    }
+
+                    MessageBox.Show($"A área total: {totalArea.ToString("N3")} | O Comprimento total: {totalLength.ToString("N3")}");
+                    trans.Commit();
+                }
+            }
+
+        }
     }
 }
