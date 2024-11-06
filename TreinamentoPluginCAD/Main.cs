@@ -135,5 +135,26 @@ namespace TreinamentoPluginCAD
                 }
             }
         }
+        [CommandMethod("SELECIONARCIRCULOS")]
+        public void SelecionaCirculos()
+        {
+            // Recebe as principais variaveis da autodesk
+            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database docData = docCAD.Database;
+            Editor docEditor = docCAD.Editor;
+
+            TypedValue type = new TypedValue(0, "CIRCLE");
+            SelectionFilter selFilter = new SelectionFilter(new TypedValue[] { type });
+            PromptSelectionOptions optionSelection = new PromptSelectionOptions();
+            optionSelection.MessageForAdding = "\nSelecione os círculos";
+            optionSelection.MessageForRemoval = "\nApenas círculos";
+
+            PromptSelectionResult selObjects = docEditor.GetSelection(optionSelection, selFilter);
+
+            if (selObjects.Status == PromptStatus.OK)
+            {
+                MessageBox.Show($"A quantidade de objetos selecionados foi: {selObjects.Value.Count.ToString()}");
+            }
+        }
     }
 }
