@@ -20,7 +20,7 @@ namespace TreinamentoPluginCAD
         [CommandMethod("PEGARPONTO")]
         public void PegarPonto()
         {
-            
+
             PromptPointOptions optionPoint = new PromptPointOptions("\nEspecifique o ponto no desenho");
 
             // Solicita a selecão de um ponto no desenho
@@ -67,7 +67,7 @@ namespace TreinamentoPluginCAD
             optionInteger.DefaultValue = 2;
 
             PromptIntegerResult numInput = Manager.docEditor.GetInteger(optionInteger);
-            if(numInput.Status == PromptStatus.OK)
+            if (numInput.Status == PromptStatus.OK)
             {
                 MessageBox.Show($"O número digitado foi: {numInput.Value}");
             }
@@ -87,7 +87,7 @@ namespace TreinamentoPluginCAD
             }
             else
             {
-                MessageBox.Show("O Objeto não foi selecionado", "Erro!", MessageBoxButtons.OK ,MessageBoxIcon.Error);
+                MessageBox.Show("O Objeto não foi selecionado", "Erro!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -158,7 +158,7 @@ namespace TreinamentoPluginCAD
                 using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
                 {
                     double totalArea = 0;
-                    double totalLength = 0; 
+                    double totalLength = 0;
 
                     for (int i = 0; i < selObjects.Value.Count; i++)
                     {
@@ -232,12 +232,13 @@ namespace TreinamentoPluginCAD
 
         [CommandMethod("CRIAPOLYLINE")]
         public void CriaPolyline()
+
         {
             List<Point3d> listPoint = new List<Point3d>();
 
-            VOLTAR:
+        VOLTAR:
             PromptPointResult point = Manager.docEditor.GetPoint("\nEspecifique o ponto");
-            if(point.Status == PromptStatus.OK)
+            if (point.Status == PromptStatus.OK)
             {
                 listPoint.Add(point.Value);
                 goto VOLTAR;
@@ -264,11 +265,11 @@ namespace TreinamentoPluginCAD
                 }
             }
         }
-        [CommandMethod("CRIACIRCULOS")]
-        public void CriaCirculos()
+        [CommandMethod("CRIACIRCULO")]
+        public void CriaCirculo()
         {
             PromptPointResult pointC = Manager.docEditor.GetPoint("\nEspecifique o centro do círculo");
-            if(pointC.Status == PromptStatus.OK)
+            if (pointC.Status == PromptStatus.OK)
             {
                 PromptDoubleResult radius = Manager.docEditor.GetDouble("\nDiigte o raio");
                 if (radius.Status == PromptStatus.OK)
@@ -287,6 +288,123 @@ namespace TreinamentoPluginCAD
                     }
                 }
             }
+        }
+
+        [CommandMethod("CRIASPLINE")]
+        public void CriaSPL()
+        {
+            List<Point3d> listPoint = new List<Point3d>();
+
+        VOLTAR:
+            PromptPointResult point = Manager.docEditor.GetPoint("\nEspecifique o ponto");
+            if (point.Status == PromptStatus.OK)
+            {
+                listPoint.Add(point.Value);
+                goto VOLTAR;
+            }
+            else
+            {
+                if (listPoint.Count > 1)
+                {
+                    using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+                    {
+                        BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
+
+                        Point3dCollection points = new Point3dCollection(listPoint.ToArray());
+
+                        Spline spline = new Spline(points, 0, 1);
+                        spline.ColorIndex = 2;
+                        spline.Layer = "0";
+                        model.AppendEntity(spline);
+                        trans.AddNewlyCreatedDBObject(spline, true);
+                        trans.Commit();
+                    }
+                }
+            }
+        }
+
+        [CommandMethod("CRIAHACHURAS")]
+        public void CriaHachuras()
+        {
+            TypedValue type = new TypedValue(0, "LWPOLYLINE");
+            SelectionFilter selFilter = new SelectionFilter(new TypedValue[] { type });
+            PromptSelectionOptions optionSelection = new PromptSelectionOptions();
+            optionSelection.MessageForAdding = "\nSelecione as polilinhas";
+            optionSelection.MessageForRemoval = "\nApenas polilinhas";
+
+            PromptSelectionResult selObjects = Manager.docEditor.GetSelection(optionSelection, selFilter);
+            if (selObjects.Status == PromptStatus.OK)
+            {
+                Autodesk.AutoCAD.Windows.ColorDialog colorWin = new Autodesk.AutoCAD.Windows.ColorDialog();
+                if (colorWin.ShowDialog() == DialogResult.OK)
+                {
+                    using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+                    {
+                        BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
+
+                        for (int i = 0; i < selObjects.Value.Count; i++)
+                        {
+                            ObjectId id = selObjects.Value[i].ObjectId;
+                            ObjectIdCollection ids = new ObjectIdCollection();
+                            ids.Add(id);
+
+                            Hatch hatch = new Hatch();
+                            model.AppendEntity(hatch);
+                            trans.AddNewlyCreatedDBObject(hatch, true);
+
+                            hatch.SetDatabaseDefaults();
+                            hatch.SetHatchPattern(HatchPatternType.PreDefined, "GOST_GROUND");
+                            hatch.PatternScale = 1;
+                            hatch.Color = colorWin.Color;
+                            hatch.Associative = true;
+                            hatch.AppendLoop(HatchLoopTypes.Outermost, ids);
+                            hatch.EvaluateHatch(true);
+                        }
+                        trans.Commit();
+                    }
+                }
+
+            }
+        }
+
+        [CommandMethod("CRIATEXTOS")]
+        public void CriaTextos()
+        {
+            PromptPointResult pointClicked = Manager.docEditor.GetPoint("\nEspecifique o local do texto");
+            if (pointClicked.Status != PromptStatus.OK) 
+            {
+                return;
+            }
+
+            PromptStringOptions optionString = new PromptStringOptions("\nInforme o texto desejado");
+            optionString.AllowSpaces = true;
+            
+            PromptResult textResult = Manager.docEditor.GetString(optionString);
+            if (textResult.Status != PromptStatus.OK)
+            {
+                return;
+            }
+
+            using(Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+            {
+                BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
+
+                if (!string.IsNullOrEmpty(textResult.StringResult))
+                {
+                    DBText text = new DBText();
+                    text.TextString = textResult.StringResult;
+                    text.Height = 12;
+                    text.Position = pointClicked.Value;
+                    text.Justify = AttachmentPoint.MiddleCenter;
+
+                    model.AppendEntity(text);
+                    trans.AddNewlyCreatedDBObject(text, true);
+
+                    text.TransformBy(Matrix3d.Displacement(Point3d.Origin.GetVectorTo(pointClicked.Value)));
+                }
+                trans.Commit();
+            }
+            
         }
         #endregion
     }
