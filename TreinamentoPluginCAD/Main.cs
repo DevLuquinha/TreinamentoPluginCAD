@@ -230,6 +230,41 @@ namespace TreinamentoPluginCAD
             }
         }
 
+        [CommandMethod("CRIAPOLYLINE")]
+        public void CriaPolyline()
+        {
+            List<Point3d> listPoint = new List<Point3d>();
+
+            VOLTAR:
+            PromptPointResult point = Manager.docEditor.GetPoint("\nEspecifique o ponto");
+            if(point.Status == PromptStatus.OK)
+            {
+                listPoint.Add(point.Value);
+                goto VOLTAR;
+            }
+            else
+            {
+                if (listPoint.Count > 1)
+                {
+                    using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
+                    {
+                        BlockTableRecord model = (BlockTableRecord)trans.GetObject(Manager.docData.CurrentSpaceId, OpenMode.ForWrite);
+
+                        Polyline polyL = new Polyline();
+
+                        for (int i = 0; i < listPoint.Count; i++)
+                        {
+                            polyL.AddVertexAt(i, listPoint[i].Convert2d(new Plane()), 0, 0, 0);
+                        }
+
+                        model.AppendEntity(polyL);
+                        trans.AddNewlyCreatedDBObject(polyL, true);
+                        trans.Commit();
+                    }
+                }
+            }
+        }
+
         #endregion
     }
 }
