@@ -19,36 +19,27 @@ namespace TreinamentoPluginCAD
         [CommandMethod("PEGARPONTO")]
         public void PegarPonto()
         {
-            // Recebe as principais variaveis da autodesk
-            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Database docData = docCAD.Database;
-            Editor docEditor = docCAD.Editor;
-
+            
             PromptPointOptions optionPoint = new PromptPointOptions("\nEspecifique o ponto no desenho");
 
             // Solicita a selecão de um ponto no desenho
-            PromptPointResult pointClicked = docEditor.GetPoint(optionPoint);
+            PromptPointResult pointClicked = Manager.docEditor.GetPoint(optionPoint);
 
             // Verifica se deu certo
             if (pointClicked.Status == PromptStatus.OK)
             {
                 // Escreve uma mensagem
-                docEditor.WriteMessage($"O valor X:{pointClicked.Value.X.ToString()} | O Valor de Y: {pointClicked.Value.Y}");
+                Manager.docEditor.WriteMessage($"O valor X:{pointClicked.Value.X.ToString()} | O Valor de Y: {pointClicked.Value.Y}");
             }
         }
 
         [CommandMethod("PEGARNUMERO")]
         public void PegarNumero()
         {
-            // Recebe as principais variaveis da autodesk
-            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Database docData = docCAD.Database;
-            Editor docEditor = docCAD.Editor;
-
             PromptDoubleOptions optionDouble = new PromptDoubleOptions("\nDigite um número");
             optionDouble.DefaultValue = 6;
 
-            PromptDoubleResult numberInput = docEditor.GetDouble(optionDouble);
+            PromptDoubleResult numberInput = Manager.docEditor.GetDouble(optionDouble);
             if (numberInput.Status == PromptStatus.OK)
             {
                 MessageBox.Show($"O valor digitado é: {numberInput.Value}", "O valor foi digitado :)", MessageBoxButtons.OK);
@@ -58,15 +49,10 @@ namespace TreinamentoPluginCAD
         [CommandMethod("PEGARTEXTO")]
         public void PegarTexto()
         {
-            // Recebe as principais variaveis da autodesk
-            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Database docData = docCAD.Database;
-            Editor docEditor = docCAD.Editor;
-
             PromptStringOptions optionString = new PromptStringOptions("\nDigite uma palavra");
             optionString.AllowSpaces = true;
 
-            PromptResult txtInput = docEditor.GetString(optionString);
+            PromptResult txtInput = Manager.docEditor.GetString(optionString);
             if (txtInput.Status == PromptStatus.OK)
             {
                 MessageBox.Show($"O texto digitado foi: {txtInput.StringResult}");
@@ -76,15 +62,10 @@ namespace TreinamentoPluginCAD
         [CommandMethod("PEGARINTEIRO")]
         public void PegarInteiro()
         {
-            // Recebe as principais variaveis da autodesk
-            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Database docData = docCAD.Database;
-            Editor docEditor = docCAD.Editor;
-
             PromptIntegerOptions optionInteger = new PromptIntegerOptions("\nEspecifique o número inteiro");
             optionInteger.DefaultValue = 2;
 
-            PromptIntegerResult numInput = docEditor.GetInteger(optionInteger);
+            PromptIntegerResult numInput = Manager.docEditor.GetInteger(optionInteger);
             if(numInput.Status == PromptStatus.OK)
             {
                 MessageBox.Show($"O número digitado foi: {numInput.Value}");
@@ -94,16 +75,11 @@ namespace TreinamentoPluginCAD
         [CommandMethod("PEGARENTIDADE")]
         public void PegarEntidade()
         {
-            // Recebe as principais variaveis da autodesk
-            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Database docData = docCAD.Database;
-            Editor docEditor = docCAD.Editor;
-
             PromptEntityOptions optionEntity = new PromptEntityOptions("\nSelecione a polyline");
             optionEntity.SetRejectMessage("\nSelecione apenas polylines!");
             optionEntity.AddAllowedClass(typeof(Polyline), true);
 
-            PromptEntityResult resultSel = docEditor.GetEntity(optionEntity);
+            PromptEntityResult resultSel = Manager.docEditor.GetEntity(optionEntity);
             if (resultSel.Status == PromptStatus.OK)
             {
                 MessageBox.Show("O Objeto FOI selecionado", "Sucesso :)", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -117,18 +93,13 @@ namespace TreinamentoPluginCAD
         [CommandMethod("PEGARCORNER")]
         public void PegarCorner()
         {
-            // Recebe as principais variaveis da autodesk
-            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Database docData = docCAD.Database;
-            Editor docEditor = docCAD.Editor;
-
-            PromptPointResult pointClicked = docEditor.GetPoint("\nEspecifique o ponto inicial");
+            PromptPointResult pointClicked = Manager.docEditor.GetPoint("\nEspecifique o ponto inicial");
             if (pointClicked.Status == PromptStatus.OK)
             {
                 PromptCornerOptions optionCorner = new PromptCornerOptions("Especifique o segundo ponto", pointClicked.Value);
                 optionCorner.UseDashedLine = true;
 
-                PromptPointResult pointCorner = docEditor.GetCorner(optionCorner);
+                PromptPointResult pointCorner = Manager.docEditor.GetCorner(optionCorner);
                 if (pointCorner.Status == PromptStatus.OK)
                 {
                     MessageBox.Show($"Primeira Coordenada: {pointClicked.Value.X}, {pointClicked.Value.Y}");
@@ -139,22 +110,17 @@ namespace TreinamentoPluginCAD
         [CommandMethod("SELECIONARCIRCULOS")]
         public void SelecionaCirculos()
         {
-            // Recebe as principais variaveis da autodesk
-            Document docCAD = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            Database docData = docCAD.Database;
-            Editor docEditor = docCAD.Editor;
-
             TypedValue type = new TypedValue(0, "CIRCLE");
             SelectionFilter selFilter = new SelectionFilter(new TypedValue[] { type });
             PromptSelectionOptions optionSelection = new PromptSelectionOptions();
             optionSelection.MessageForAdding = "\nSelecione os círculos";
             optionSelection.MessageForRemoval = "\nApenas círculos";
 
-            PromptSelectionResult selObjects = docEditor.GetSelection(optionSelection, selFilter);
+            PromptSelectionResult selObjects = Manager.docEditor.GetSelection(optionSelection, selFilter);
 
             if (selObjects.Status == PromptStatus.OK)
             {
-                PromptDoubleResult radius = docEditor.GetDouble("\nEspecifique o raio: ");
+                PromptDoubleResult radius = Manager.docEditor.GetDouble("\nEspecifique o raio: ");
 
                 if (radius.Status == PromptStatus.OK)
                 {
@@ -162,7 +128,7 @@ namespace TreinamentoPluginCAD
 
                     if (colorWin.ShowDialog() == DialogResult.OK)
                     {
-                        using (Transaction trans = docData.TransactionManager.StartTransaction())
+                        using (Transaction trans = Manager.docData.TransactionManager.StartTransaction())
                         {
                             for (int i = 0; i < selObjects.Value.Count; i++)
                             {
